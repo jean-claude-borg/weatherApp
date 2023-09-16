@@ -1,13 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image, View, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider, Surface, Button, Text, IconButton, Menu } from 'react-native-paper';
 import { styles, theme } from './Stylesheet.js'
 
-function HeaderSection({ navigation, apiResponseRealtime, showMenu, setMenu }) {
+function HeaderSection({ apiResponseRealtime, showMenu, setMenu, loadingData }) {
+
+    if(loadingData)
+        return;
 
     const cityName = apiResponseRealtime.location.name;
     const countryName = apiResponseRealtime.location.country;
+    const navigation = useNavigation();
 
     return (
         <View style={styles.headerSection}>
@@ -48,7 +53,10 @@ function WeatherIconSection({ iconLink }) {
     )
 }
 
-function WeatherOverviewSection({ apiResponseRealtime }) {
+function WeatherOverviewSection({ apiResponseRealtime, loadingData }) {
+
+    if(loadingData)
+        return;
 
     const weatherDescriptionToday = apiResponseRealtime.current.condition.text;
     const weatherIconToday = apiResponseRealtime.current.condition.icon;
@@ -65,7 +73,10 @@ function WeatherOverviewSection({ apiResponseRealtime }) {
     )
 }
 
-function DetailsSection({ apiResponseRealtime }) {
+function DetailsSection({ apiResponseRealtime, loadingData }) {
+
+    if(loadingData)
+        return;
 
     const windSpeed = apiResponseRealtime.current.wind_kph;
     const precipitation = apiResponseRealtime.current.precip_mm;
@@ -121,7 +132,10 @@ function DayCard({ day, temperature, icon }) {
     )
 }
 
-function DailyForecastSection({ apiResponseRealtime, apiResponseForecast }) {
+function DailyForecastSection({ apiResponseRealtime, apiResponseForecast, loadingData }) {
+
+    if(loadingData)
+        return;
 
     const day1Temp = Math.floor(apiResponseForecast.forecast.forecastday[0].day.maxtemp_c);
     const day2Temp = Math.floor(apiResponseForecast.forecast.forecastday[1].day.maxtemp_c);
@@ -174,22 +188,20 @@ function DailyForecastSection({ apiResponseRealtime, apiResponseForecast }) {
     )
 }
 
-export function HomeScreen({ navigation, apiResponseRealtime, apiResponseForecast, showMenu, setMenu }) {
+export function HomeScreen({ apiResponseRealtime, apiResponseForecast, showMenu, setMenu, loadingData }) {
     return (
         <>
-            {/* background image */}
-            <Image
-                source={require("../assets/backgrounds/background2.jpg")}
-                blurRadius={9}
-                style={styles.background}
-            />
             <StatusBar style='auto' />
             <PaperProvider theme={theme}>
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={{ flex: 1, justifyContent: 'top', alignItems: 'flex-start', backgroundColor: "transparent" }}>
-                        <HeaderSection apiResponseRealtime={apiResponseRealtime} showMenu={showMenu} setMenu={setMenu} navigation={navigation} />
-                        <WeatherOverviewSection apiResponseRealtime={apiResponseRealtime} />
-                        <DailyForecastSection apiResponseRealtime={apiResponseRealtime} apiResponseForecast={apiResponseForecast} />
+                        { !loadingData &&
+                        <>
+                            <HeaderSection apiResponseRealtime={apiResponseRealtime} showMenu={showMenu} setMenu={setMenu} loadingData={loadingData} />
+                            <WeatherOverviewSection apiResponseRealtime={apiResponseRealtime} loadingData={loadingData}/>
+                            <DailyForecastSection apiResponseRealtime={apiResponseRealtime} apiResponseForecast={apiResponseForecast} loadingData={loadingData}/>
+                        </>
+                        }
                     </View>
                 </SafeAreaView>
             </PaperProvider>

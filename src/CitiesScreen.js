@@ -36,11 +36,11 @@ function updateSuggestedLocations(apiQueryInterval, text, setSuggestedLocations,
   })();
 }
 
-function CitiesPageCity({cityName, countryName, citiesList, setCitiesList}){
+function City({cityName, countryName, citiesList, setCitiesList}){
     return(
       <Surface style={{display:"flex", flexDirection:"row",width:"100%", height:100, alignItems:"center", justifyContent:"center", marginBottom:"1%"}}>
         <View style={{flex:1, marginLeft:"7%"}}>
-          <Text variant='titleLarge'>{cityName},</Text>
+          <Text variant='headlineSmall'>{cityName},</Text>
           <Text variant='titleMedium'>{countryName}</Text>
         </View>
         <IconButton 
@@ -132,14 +132,14 @@ export function CitiesScreen({ navigation, citiesList, setCitiesList, apiCall, s
                                 setShowSuggestions={setShowSuggestions}
                                 apiCall={apiCall}
                                 setLoadingData={setLoadingData}
-                                />
+                  />
             ))
           }
           <ScrollView style={{marginTop:25}}>
             {
               citiesList.map((location, index) => (
                 <Fragment key={index} >
-                  <CitiesPageCity cityName={location.city} countryName={location.country} citiesList={citiesList} setCitiesList={setCitiesList}/>
+                  <City cityName={location.city} countryName={location.country} citiesList={citiesList} setCitiesList={setCitiesList}/>
                   <Divider></Divider>
                 </Fragment>
               ))

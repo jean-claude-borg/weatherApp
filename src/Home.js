@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, View, ScrollView } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Image, View, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider, Surface, Button, Text, IconButton, Menu } from 'react-native-paper';
@@ -41,13 +42,30 @@ function HeaderSection({ apiResponseRealtime, showMenu, setMenu, loadingData }) 
     )
 }
 
-function WeatherIconSection({ iconLink }) {
+const ICONS_MAP = {
+    1000: require('../assets/icons/weatherIcons/1000.png'),
+    1003: require('../assets/icons/weatherIcons/1003.png'),
+    1006: require('../assets/icons/weatherIcons/1006.png'),
+    1009: require('../assets/icons/weatherIcons/1009.png'),
+    1063: require('../assets/icons/weatherIcons/1063.png'),
+    1150: require('../assets/icons/weatherIcons/1150.png'),
+    1153: require('../assets/icons/weatherIcons/1153.png'),
+    1183: require('../assets/icons/weatherIcons/1183.png'),
+    1189: require('../assets/icons/weatherIcons/1189.png'),
+
+    default: require('../assets/icons/weatherIcons/questionMark.jpg')
+};
+
+function WeatherIconSection({ iconCode }) {
+
+    const icon = ICONS_MAP[iconCode] ? ICONS_MAP[iconCode] : ICONS_MAP['default'];
+
     return (
         <View style={styles.weatherIconSection}>
             <Image
-                // source={{ uri: `https:${iconLink}` }}
-                source={require('../assets/icons/sunny2.png')}
-                style={{ width: "100%", height: "100%" }}
+                source={icon}
+                // source={require('../assets/icons/sunny2.png')}
+                style={{ width: "100%", height: "100%", marginTop:45 }}
             />
         </View>
     )
@@ -59,12 +77,12 @@ function WeatherOverviewSection({ apiResponseRealtime, loadingData }) {
         return;
 
     const weatherDescriptionToday = apiResponseRealtime.current.condition.text;
-    const weatherIconToday = apiResponseRealtime.current.condition.icon;
+    const weatherCodeToday = apiResponseRealtime.current.condition.code;
     const temperatureToday = Math.floor(apiResponseRealtime.current.temp_c);
 
     return (
         <View style={styles.weatherOverviewSection}>
-            <WeatherIconSection iconLink={weatherIconToday} />
+            <WeatherIconSection iconCode={weatherCodeToday} />
             <View style={{ display: "flex", flexDirection: "column", backgroundColor: "transparent" }}>
                 <Text variant="displayLarge" style={{ alignSelf: "center" }}>{temperatureToday}{'\u00B0'}</Text>
                 <Text variant="titleMedium" style={{ alignSelf: "center" }}>{weatherDescriptionToday}</Text>
@@ -111,7 +129,10 @@ function DetailsSection({ apiResponseRealtime, loadingData }) {
     )
 }
 
-function DayCard({ day, temperature, icon }) {
+function DayCard({ day, temperature, iconCode }) {
+
+    const icon = ICONS_MAP[iconCode] ? ICONS_MAP[iconCode] : ICONS_MAP['default'];
+
     return (
         <View style={{ display: "flex", flexDirection: "column", alignItems: "center", backgroundColor: "transparent", height: "100%", width: 70, paddingTop: 10 }}>
             <View style={{ alignItems: "center", width: "100%" }}>
@@ -120,12 +141,12 @@ function DayCard({ day, temperature, icon }) {
 
             <View style={{ paddingTop: 7, alignSelf: "center", alignItems: "center", justifyContent: "center" }}>
                 <Image
-                    source={{ uri: `https:${icon}` }}
-                    style={{ width: 38, height: 38 }}
+                    source={icon}
+                    style={{ width: 32, height: 32 }}
                 />
             </View>
 
-            <View style={{ alignItems: "center", width: "100%", paddingLeft: 5 }}>
+            <View style={{ alignItems: "center", width: "100%", paddingLeft: 5, paddingTop:10 }}>
                 <Text variant='titleSmall'>{`${temperature}\u00B0`}</Text>
             </View>
         </View>
@@ -145,13 +166,13 @@ function DailyForecastSection({ apiResponseRealtime, apiResponseForecast, loadin
     const day6Temp = Math.floor(apiResponseForecast.forecast.forecastday[5].day.maxtemp_c);
     const day7Temp = Math.floor(apiResponseForecast.forecast.forecastday[6].day.maxtemp_c);
 
-    const day1Icon = apiResponseForecast.forecast.forecastday[0].day.condition.icon;
-    const day2Icon = apiResponseForecast.forecast.forecastday[1].day.condition.icon;
-    const day3Icon = apiResponseForecast.forecast.forecastday[2].day.condition.icon;
-    const day4Icon = apiResponseForecast.forecast.forecastday[3].day.condition.icon;
-    const day5Icon = apiResponseForecast.forecast.forecastday[4].day.condition.icon;
-    const day6Icon = apiResponseForecast.forecast.forecastday[5].day.condition.icon;
-    const day7Icon = apiResponseForecast.forecast.forecastday[6].day.condition.icon;
+    const day1IconCode = apiResponseForecast.forecast.forecastday[0].day.condition.code;
+    const day2IconCode = apiResponseForecast.forecast.forecastday[1].day.condition.code;
+    const day3IconCode = apiResponseForecast.forecast.forecastday[2].day.condition.code;
+    const day4IconCode = apiResponseForecast.forecast.forecastday[3].day.condition.code;
+    const day5IconCode = apiResponseForecast.forecast.forecastday[4].day.condition.code;
+    const day6IconCode = apiResponseForecast.forecast.forecastday[5].day.condition.code;
+    const day7IconCode = apiResponseForecast.forecast.forecastday[6].day.condition.code;
 
     //gets the weekday from the date for each date
     let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -174,13 +195,13 @@ function DailyForecastSection({ apiResponseRealtime, apiResponseForecast, loadin
                     style={{ backgroundColor: "transparent", width: "100%", maxHeight: "100%" }}
                 >
 
-                    <DayCard day={dayOfWeek1.substring(0, 3)} temperature={day1Temp} icon={day1Icon}></DayCard>
-                    <DayCard day={dayOfWeek2.substring(0, 3)} temperature={day2Temp} icon={day2Icon}></DayCard>
-                    <DayCard day={dayOfWeek3.substring(0, 3)} temperature={day3Temp} icon={day3Icon}></DayCard>
-                    <DayCard day={dayOfWeek4.substring(0, 3)} temperature={day4Temp} icon={day4Icon}></DayCard>
-                    <DayCard day={dayOfWeek5.substring(0, 3)} temperature={day5Temp} icon={day5Icon}></DayCard>
-                    <DayCard day={dayOfWeek6.substring(0, 3)} temperature={day6Temp} icon={day6Icon}></DayCard>
-                    <DayCard day={dayOfWeek7.substring(0, 3)} temperature={day7Temp} icon={day7Icon}></DayCard>
+                    <DayCard day={dayOfWeek1.substring(0, 3)} temperature={day1Temp} iconCode={day1IconCode}></DayCard>
+                    <DayCard day={dayOfWeek2.substring(0, 3)} temperature={day2Temp} iconCode={day2IconCode}></DayCard>
+                    <DayCard day={dayOfWeek3.substring(0, 3)} temperature={day3Temp} iconCode={day3IconCode}></DayCard>
+                    <DayCard day={dayOfWeek4.substring(0, 3)} temperature={day4Temp} iconCode={day4IconCode}></DayCard>
+                    <DayCard day={dayOfWeek5.substring(0, 3)} temperature={day5Temp} iconCode={day5IconCode}></DayCard>
+                    <DayCard day={dayOfWeek6.substring(0, 3)} temperature={day6Temp} iconCode={day6IconCode}></DayCard>
+                    <DayCard day={dayOfWeek7.substring(0, 3)} temperature={day7Temp} iconCode={day7IconCode}></DayCard>
 
                 </ScrollView>
             </Surface>
@@ -189,6 +210,14 @@ function DailyForecastSection({ apiResponseRealtime, apiResponseForecast, loadin
 }
 
 export function HomeScreen({ apiResponseRealtime, apiResponseForecast, showMenu, setMenu, loadingData }) {
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => {
+          setRefreshing(false);
+          console.log("refreshed");
+        }, 2000);
+      }, []);
     return (
         <>
             <StatusBar style='auto' />
@@ -196,11 +225,15 @@ export function HomeScreen({ apiResponseRealtime, apiResponseForecast, showMenu,
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={{ flex: 1, justifyContent: 'top', alignItems: 'flex-start', backgroundColor: "transparent" }}>
                         { !loadingData &&
-                        <>
-                            <HeaderSection apiResponseRealtime={apiResponseRealtime} showMenu={showMenu} setMenu={setMenu} loadingData={loadingData} />
-                            <WeatherOverviewSection apiResponseRealtime={apiResponseRealtime} loadingData={loadingData}/>
-                            <DailyForecastSection apiResponseRealtime={apiResponseRealtime} apiResponseForecast={apiResponseForecast} loadingData={loadingData}/>
-                        </>
+                            <ScrollView
+                                contentContainerStyle={{flex:1, alignItems:"center"}}
+                                nestedScrollEnabled={true}
+                                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                            >
+                                <HeaderSection apiResponseRealtime={apiResponseRealtime} showMenu={showMenu} setMenu={setMenu} loadingData={loadingData} />
+                                <WeatherOverviewSection apiResponseRealtime={apiResponseRealtime} loadingData={loadingData}/>
+                                <DailyForecastSection apiResponseRealtime={apiResponseRealtime} apiResponseForecast={apiResponseForecast} loadingData={loadingData}/>
+                            </ScrollView>
                         }
                     </View>
                 </SafeAreaView>

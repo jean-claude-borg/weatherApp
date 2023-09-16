@@ -35,7 +35,6 @@ async function apiCall(endpoint){
 
 function HomePager({ apiResponseRealtime, apiResponseForecast, showMenu, setMenu, citiesList, loadingData }) {
   const [selectedPageIndex, setSelectedPageIndex] = useState(0);
-
   return (
     <>
     {/* background image */}
@@ -49,7 +48,7 @@ function HomePager({ apiResponseRealtime, apiResponseForecast, showMenu, setMenu
         onPageSelected={e => setSelectedPageIndex(e.nativeEvent.position)}
         initialPage={0}
       >
-        {
+        { 
           citiesList.map((screen, index) => (
             <HomeScreen 
               key={index}
@@ -61,49 +60,19 @@ function HomePager({ apiResponseRealtime, apiResponseForecast, showMenu, setMenu
             />
           ))
         }
-          {/* <View style={{flex: 1}}> */}
-            {/* Render your HomeScreen for each city here. You can use cityData to provide city-specific information. */}
-            {/* <HomeScreen 
-              apiResponseRealtime={apiResponseRealtime} 
-              apiResponseForecast={apiResponseForecast}
-              showMenu={showMenu}
-              setMenu={setMenu}
-            />
-          </View> */}
-
-          {/* <View style={{flex: 1}}> */}
-            {/* Render your HomeScreen for each city here. You can use cityData to provide city-specific information. */}
-            {/* <HomeScreen 
-              apiResponseRealtime={apiResponseRealtime} 
-              apiResponseForecast={apiResponseForecast}
-              showMenu={showMenu}
-              setMenu={setMenu}
-            />
-          </View> */}
-
-          {/* <View style={{flex: 1}}> */}
-            {/* Render your HomeScreen for each city here. You can use cityData to provide city-specific information. */}
-            {/* <HomeScreen 
-              apiResponseRealtime={apiResponseRealtime} 
-              apiResponseForecast={apiResponseForecast}
-              showMenu={showMenu}
-              setMenu={setMenu}
-            />
-          </View> */}
       </PagerView>
     </>
   );
 }
 
 export default function App() {
-
   const [showMenu, setMenu] = useState(false);
 
   const [locationCoords, setLocationCoords] = useState(null);
   const [apiResponseRealtime, setApiResponseRealtime] = useState(apiResponseRealtimeJSON);
   const [apiResponseForecast, setApiResponseForecast] = useState(apiResponseForecastJSON);
   const [citiesList, setCitiesList] = useState([{city: apiResponseForecast.location.name, country: apiResponseForecast.location.country, realTime: apiResponseRealtime, forecast: apiResponseForecast}]);
-  const [loadingData, setLoadingData] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
   const baseUrlRealtime = "https://api.weatherapi.com/v1/current.json?"
   const baseUrlForecast = "https://api.weatherapi.com/v1/forecast.json?";
@@ -113,11 +82,13 @@ export default function App() {
   useEffect( () => {
     (async() => {
       setLoadingData(true);
+
       let {status} = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
       }
+
       let retrievedLocation = await Location.getCurrentPositionAsync({});
       setLocationCoords(retrievedLocation);
 
@@ -138,45 +109,55 @@ export default function App() {
 
         const dataForecast = await apiCall(apiUrlForecast);
         setApiResponseForecast(dataForecast);
+
+        setCitiesList([{city: apiResponseForecast.location.name, country: apiResponseForecast.location.country, realTime: apiResponseRealtime, forecast: apiResponseForecast}]);
+        setLoadingData(false);
       }
-      setLoadingData(false);
+      else{
+        setLoadingData(false);
+      }
     }
    )();
   }, []);
   
+  // setApiResponseRealtime(apiResponseRealtimeJSON);
+  // setApiResponseForecast(apiResponseForecastJSON);
+  // setCitiesList([{city: apiResponseForecast.location.name, country: apiResponseForecast.location.country, realTime: apiResponseRealtime, forecast: apiResponseForecast}]);
+  // setLoadingData(false);
+
   return (
     <View style={{flex:1}}>
-      <NavigationContainer theme={theme}>
-        <Stack.Navigator>
-          <Stack.Screen 
-            name="HomeScreen" 
-            options={{
-              headerShown:false
-            }}
-            children={(props) => <HomePager {...props} 
-                                  apiResponseRealtime={apiResponseRealtime} 
-                                  apiResponseForecast={apiResponseForecast}
-                                  showMenu={showMenu}
-                                  setMenu={setMenu}
-                                  citiesList={citiesList}
-                                  loadingData={loadingData}
-                                 />}
-          />
-          <Stack.Screen 
-            name="Cities" 
-            options={{
-              headerShown:false
-            }}
-            children={(props) => <CitiesScreen {...props}
-                                  citiesList={citiesList}
-                                  setCitiesList={setCitiesList}
-                                  apiCall={apiCall}
-                                  setLoadingData={setLoadingData}
-                                 />}
-          />
-          <Stack.Screen name="Settings" component={SettingsPage}/>
-        </Stack.Navigator>
-      </NavigationContainer>
+        <NavigationContainer theme={theme}>
+          <Stack.Navigator>
+            <Stack.Screen 
+              name="HomeScreen" 
+              options={{
+                headerShown:false
+              }}
+              children={(props) => <HomePager {...props} 
+                                    apiResponseRealtime={apiResponseRealtime} 
+                                    apiResponseForecast={apiResponseForecast}
+                                    showMenu={showMenu}
+                                    setMenu={setMenu}
+                                    citiesList={citiesList}
+                                    loadingData={loadingData}
+                                  />}
+            />
+            <Stack.Screen 
+              name="Cities" 
+              options={{
+                headerShown:false
+              }}
+              children={(props) => <CitiesScreen {...props}
+                                    citiesList={citiesList}
+                                    setCitiesList={setCitiesList}
+                                    apiCall={apiCall}
+                                    setLoadingData={setLoadingData}
+                                  />}
+            />
+            <Stack.Screen name="Settings" component={SettingsPage}/>
+          </Stack.Navigator>
+        </NavigationContainer>
     </View>
   );
 }

@@ -6,4 +6,4 @@ Upon launching the app, the user is prompted to proivde location access so that 
 
 Below is the forecast screen: 
 
-
+![Alt Text](Screenshots/HomeScreen.jpg)

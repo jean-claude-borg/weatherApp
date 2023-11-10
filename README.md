@@ -1,6 +1,6 @@
 # Weather App
 
-A weather app for Android and IOS. Built using react native and expo.
+A weather app for Android and IOS. Built using react native and expo. A third party forecast api is used to get forecast data.
 
 Upon launching the app, the user is prompted to proivde location access so that the app can automatically provide the forecast for the users location. 
 

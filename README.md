@@ -10,7 +10,7 @@ Below is the forecast screen:
 
 ## Cities
 
-The user can add more cities and swipe between them on the homescreen. To add cities, the cities screen has to be opened.
+The user can add more cities and swipe between them on the homescreen. To add cities, the cities screen has to be opened. When searching for a city, a list of suggested cities based on the search query is displayed. 
 
 ![Alt Text](Screenshots/CitiesScreen.jpg)
 

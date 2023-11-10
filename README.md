@@ -18,4 +18,4 @@ The user can add more cities and swipe between them on the homescreen. To add ci
 
 The user can access the settings to choose between metric/imperial units, toggle vibrations for notifications and toggle between a light theme and dark theme.
 
-![Alt Text](Screenshots/SettingsScreen.jpg)
+![Alt Text](Screenshots/SettingsScreen.JPG)
